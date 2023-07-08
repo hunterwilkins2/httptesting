@@ -11,7 +11,7 @@ import (
 	"github.com/hunterwilkins2/httptesting/internal/util"
 )
 
-func assertRequest(t *testing.T, ht *httptester, expectedMethod string, expectedPath string, expectedBody io.Reader) {
+func assertRequest(t *testing.T, ht *Httptester, expectedMethod string, expectedPath string, expectedBody io.Reader) {
 	t.Helper()
 	if ht.state.Request.Method != expectedMethod {
 		t.Errorf("Expected method to be %s; got %s", expectedMethod, ht.state.Request.Method)
@@ -27,8 +27,10 @@ func assertRequest(t *testing.T, ht *httptester, expectedMethod string, expected
 }
 
 func assertBody(t *testing.T, body io.ReadCloser, expectedBody string) {
-	defer body.Close()
 	b, err := io.ReadAll(body)
+	if err := body.Close(); err != nil {
+		t.Fatalf("Error closing body: %s", err.Error())
+	}
 	if err != nil {
 		t.Errorf("Unexpected error reading body: %s", err.Error())
 		return
@@ -47,7 +49,10 @@ func assertFatal(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPost
 	expectedPath := "/test"
@@ -61,7 +66,10 @@ func TestNewRequestURLErrorHandling(t *testing.T) {
 	t.Parallel()
 	mockT := util.MockTestingT{}
 	tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPost
 	expectedPath := ":"
@@ -74,7 +82,10 @@ func TestNewRequestURLErrorHandling(t *testing.T) {
 func TestNewRequestWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPost
 	expectedPath := "/test/123"
@@ -90,7 +101,10 @@ func TestNewRequestWithState(t *testing.T) {
 func TestGet(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedPath := "/test"
 	tester.Get(expectedPath)
@@ -100,7 +114,10 @@ func TestGet(t *testing.T) {
 func TestGetWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedPath := "/test/123"
 	tester.SetValue("id", 123)
@@ -113,7 +130,10 @@ func TestGetWithState(t *testing.T) {
 func TestPost(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPost
 	expectedPath := "/test"
@@ -126,7 +146,10 @@ func TestPost(t *testing.T) {
 func TestPostWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPost
 	expectedPath := "/test/123"
@@ -142,7 +165,10 @@ func TestPostWithState(t *testing.T) {
 func TestPut(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPut
 	expectedPath := "/test"
@@ -155,7 +181,10 @@ func TestPut(t *testing.T) {
 func TestPutWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPut
 	expectedPath := "/test/123"
@@ -171,7 +200,10 @@ func TestPutWithState(t *testing.T) {
 func TestPatch(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPatch
 	expectedPath := "/test"
@@ -184,7 +216,10 @@ func TestPatch(t *testing.T) {
 func TestPatchWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedMethod := http.MethodPatch
 	expectedPath := "/test/123"
@@ -200,7 +235,10 @@ func TestPatchWithState(t *testing.T) {
 func TestDelete(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedPath := "/test"
 
@@ -211,7 +249,10 @@ func TestDelete(t *testing.T) {
 func TestDeleteWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedPath := "/test/123"
 
@@ -225,7 +266,10 @@ func TestDeleteWithState(t *testing.T) {
 func TestSetBody(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedBody := "test body"
 
@@ -236,11 +280,14 @@ func TestSetBody(t *testing.T) {
 func TestRequestBodyJSON(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedBody := `{"name":"Bob"}`
 
-	tester.SetRequestBodyJson(struct {
+	tester.SetRequestBodyJSON(struct {
 		Name string `json:"name"`
 	}{
 		Name: "Bob",
@@ -252,18 +299,24 @@ func TestSetRequestBodyJSONErrorHandling(t *testing.T) {
 	t.Parallel()
 	mockT := util.MockTestingT{}
 	tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 
 	defer assertFatal(t)
 	c := make(chan int)
-	tester.SetRequestBodyJson(c)
+	tester.SetRequestBodyJSON(c)
 }
 
 func TestSetBodyWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedBody := `test 123`
 
@@ -277,7 +330,10 @@ func TestSetBodyWithState(t *testing.T) {
 func TestAddHeader(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedHeader := "application/json"
 	tester.AddHeader("Content-Type", expectedHeader)
@@ -290,7 +346,10 @@ func TestAddHeader(t *testing.T) {
 func TestAddHeaderWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedHeader := "https://foo.example"
 	tester.SetValue("OriginURL", expectedHeader)
@@ -306,7 +365,10 @@ func TestAddHeaderWithState(t *testing.T) {
 func TestAddCookie(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedCookie := http.Cookie{
 		Name:  "TestCookie",
@@ -323,7 +385,10 @@ func TestAddCookie(t *testing.T) {
 func TestAddCookieWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	expectedCookie := http.Cookie{
 		Name:  "TestCookie",
@@ -344,15 +409,13 @@ func TestAddCookieWithState(t *testing.T) {
 	}
 }
 
-func TestClearCookie(t *testing.T) {
-	t.Parallel()
-
-}
-
 func TestSetValue(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	tester.SetValue("key", "id")
 	value, ok := tester.state.Values["key"].(string)
@@ -368,7 +431,10 @@ func TestSetValue(t *testing.T) {
 func TestSetValueWithState(t *testing.T) {
 	t.Parallel()
 	tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Ok"))
+		_, err := w.Write([]byte("Ok"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}))
 	tester.Get("/route")
 	tester.SetValueWithState(func(s State) (key string, value any) {
@@ -390,7 +456,10 @@ func TestExecute(t *testing.T) {
 	t.Run("Execute executes request", func(t *testing.T) {
 		t.Parallel()
 		tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -410,7 +479,10 @@ func TestExecute(t *testing.T) {
 					Value: "123",
 				}
 				http.SetCookie(w, &cookie)
-				w.Write([]byte("cookie set"))
+				_, err := w.Write([]byte("cookie set"))
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 			}))
 
 			mux.Handle("/assert-cookie", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -419,7 +491,10 @@ func TestExecute(t *testing.T) {
 					w.WriteHeader(http.StatusUnauthorized)
 					return
 				}
-				w.Write([]byte("cookie retrieved"))
+				_, err := w.Write([]byte("cookie retrieved"))
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 			}))
 
 			mux.ServeHTTP(w, r)
@@ -438,7 +513,10 @@ func TestExecute(t *testing.T) {
 	t.Run("Execute resets state", func(t *testing.T) {
 		t.Parallel()
 		tester := New(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -462,7 +540,10 @@ func TestAssertStatus(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -474,7 +555,10 @@ func TestAssertStatus(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -487,7 +571,10 @@ func TestAssertStatus(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -502,7 +589,10 @@ func TestAssertStatusCode(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -514,7 +604,10 @@ func TestAssertStatusCode(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -527,7 +620,10 @@ func TestAssertStatusCode(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -542,7 +638,10 @@ func TestAssertHeader(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -554,7 +653,10 @@ func TestAssertHeader(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -568,7 +670,10 @@ func TestAssertHeader(t *testing.T) {
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add("Content-Type", "application/json")
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -583,7 +688,10 @@ func TestAssertCookieExists(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -595,7 +703,10 @@ func TestAssertCookieExists(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -612,7 +723,10 @@ func TestAssertCookieExists(t *testing.T) {
 				Name:  "TestCookie",
 				Value: "123",
 			})
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -627,7 +741,10 @@ func TestAssertCookieValue(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -639,7 +756,10 @@ func TestAssertCookieValue(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -656,7 +776,10 @@ func TestAssertCookieValue(t *testing.T) {
 				Name:  "TestCookie",
 				Value: "456",
 			})
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -673,7 +796,10 @@ func TestAssertCookieValue(t *testing.T) {
 				Name:  "TestCookie",
 				Value: "123",
 			})
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -692,7 +818,10 @@ func TestAssertCookieDeepEquals(t *testing.T) {
 		}
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -704,7 +833,10 @@ func TestAssertCookieDeepEquals(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -720,7 +852,10 @@ func TestAssertCookieDeepEquals(t *testing.T) {
 		}
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -737,7 +872,10 @@ func TestAssertCookieDeepEquals(t *testing.T) {
 		}
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -758,7 +896,10 @@ func TestAssertCookieDeepEquals(t *testing.T) {
 				Name:  "TestCookie",
 				Value: "456",
 			})
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -776,7 +917,10 @@ func TestAssertCookieDeepEquals(t *testing.T) {
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &cookie)
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -787,7 +931,7 @@ func TestAssertCookieDeepEquals(t *testing.T) {
 
 type mockReadCloser struct{}
 
-func (m *mockReadCloser) Read(p []byte) (int, error) {
+func (m *mockReadCloser) Read(_ []byte) (int, error) {
 	return 0, errors.New("read fail")
 }
 
@@ -801,7 +945,10 @@ func TestAssertBody(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -826,7 +973,10 @@ func TestAssertBody(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -839,7 +989,10 @@ func TestAssertBody(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		tester.Get("/get")
@@ -853,11 +1006,15 @@ type testStruct struct {
 }
 
 func TestAssertStruct(t *testing.T) {
+	t.Parallel()
 	t.Run("test execute must be called before assert", func(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -871,7 +1028,10 @@ func TestAssertStruct(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		expected := make(chan string)
@@ -887,7 +1047,10 @@ func TestAssertStruct(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`{"value": "123"}`))
+			_, err := w.Write([]byte(`{"value": "123"}`))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		defer assertFatal(t)
@@ -902,7 +1065,10 @@ func TestAssertStruct(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`{"value": "123"}`))
+			_, err := w.Write([]byte(`{"value": "123"}`))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		var expected testStruct
@@ -919,11 +1085,15 @@ func TestAssertStruct(t *testing.T) {
 }
 
 func TestAssertStructDeepEquals(t *testing.T) {
+	t.Parallel()
 	t.Run("test execute must be called before assert", func(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Ok"))
+			_, err := w.Write([]byte("Ok"))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		expected := &testStruct{
@@ -938,7 +1108,10 @@ func TestAssertStructDeepEquals(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`{"value": "123"}`))
+			_, err := w.Write([]byte(`{"value": "123"}`))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		expected := testStruct{
@@ -956,7 +1129,10 @@ func TestAssertStructDeepEquals(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`{"value": "123"}`))
+			_, err := w.Write([]byte(`{"value": "123"}`))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		expected := testStruct{
@@ -972,7 +1148,10 @@ func TestAssertStructDeepEquals(t *testing.T) {
 		t.Parallel()
 		mockT := util.MockTestingT{}
 		tester := New(&mockT, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`{"value": "123"}`))
+			_, err := w.Write([]byte(`{"value": "123"}`))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}))
 
 		expected := testStruct{

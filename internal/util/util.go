@@ -1,3 +1,4 @@
+// Package util Utility library for httptesting
 package util
 
 import (
@@ -5,10 +6,12 @@ import (
 	"net/http"
 )
 
-func EncodeJson(r interface{}) ([]byte, error) {
+// EncodeJSON helper function for encoding a struct to JSON
+func EncodeJSON(r interface{}) ([]byte, error) {
 	return json.Marshal(r)
 }
 
-func DecodeJson(w *http.Response, r interface{}) error {
+// DecodeJSON helper function for decoding a JSON response body into a struct
+func DecodeJSON(w *http.Response, r interface{}) error {
 	return json.NewDecoder(w.Body).Decode(&r)
 }
