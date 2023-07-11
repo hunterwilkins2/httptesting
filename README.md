@@ -1,3 +1,6 @@
+![Unit tests](https://github.com/hunterwilkins2/httptesting/actions/workflows/test.yaml/badge.svg)
+![Lint](https://github.com/hunterwilkins2/httptesting/actions/workflows/linter.yml/badge.svg)
+
 # Go HTTP Testing Library
 
 Go HTTP Testing Library simplies unit testing HTTP routes in Go. httptesting handles build/executing requests, chaining cookies, and asserting response statuses and bodies.
